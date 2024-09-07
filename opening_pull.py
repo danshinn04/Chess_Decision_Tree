@@ -56,6 +56,6 @@ class opening_pull():
             return ""
 
 # Test
-test = opening_pull(color=1, move_sequence=['g1f3'])
-test.query(['g1f3', 'g8f6', 'g2g3', 'g7g6', 'c2c4'])
-test.query(['g1f3', 'g8f6', 'g2g3', 'g7g6', "c2c4"])
+#test = opening_pull(color=1, move_sequence=['g1f3'])
+#test.query(['g1f3', 'g8f6', 'g2g3', 'g7g6', 'c2c4'])
+#test.query(['g1f3', 'g8f6', 'g2g3', 'g7g6', "c2c4"])

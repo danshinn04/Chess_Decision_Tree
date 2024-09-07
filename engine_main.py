@@ -12,7 +12,7 @@ class engine_main(opening_pull.opening_pull):
         if len(move) % 2 == color:
             p = self.query(move)
             if p is None:
-                # If lichess is crappy or out of theory
+                # If lichess is not responding or out of theory
                 self.make_move()
             else:
                 #Move from the opening theory
@@ -30,27 +30,26 @@ class engine_main(opening_pull.opening_pull):
     def make_move(self):
         
         if legal_moves:
-            chosen_move = random.choice(legal_moves)  # Randomly pick a move
-            self.board.push(chosen_move)  # Push the move onto the board
+            #chosen_move = random.choice(legal_moves)  # Randomly pick a move For debugging, will add calculation to it
+            chosen_move = Compute.compute(board, color) # Color indicates the color turn so if engine is black then it is thinking for black to move.
+            self.board.push(chosen_move)
             print(f"Engine made move: {chosen_move.uci()}")
         else:
             print("No legal moves available.")
     
-    # Overriding query method to interact with the opening database
+    
     def query(self, move_sequence):
-        result = super().query(move_sequence)  # Call the parent query method from opening_pull
+        result = super().query(move_sequence)  #Query the opening from opening_pull
         if result is None:
             print("No opening found or query failed.")
             return None
-        return result  # Return the optimal move from opening theory
+        return result  # Return from tablebase or openingcache
 
     def print_board(self):
         print(self.board)
 
-# Example of usage
+# Test
 color = 0  # Assume the engine plays white
 move_sequence = []  # Empty at start of the game
-
-# Test
 engine = engine_main(color, move_sequence)
 engine.print_board()
