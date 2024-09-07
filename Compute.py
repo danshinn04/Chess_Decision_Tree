@@ -10,7 +10,7 @@ PIECE_VALUES = {
     chess.KING: 20000
 }
 
-# Piece-square tables for WHITE Ideas for updating it would be depending on whether it is middlegame or endgame to change the evaluation of table.
+# Piece-square tables for WHITE and BLACK
 PAWN_TABLE_WHITE = [
     0, 0, 0, 0, 0, 0, 0, 0,
     35, 35, 35, 50, 50, 35, 35, 35,
@@ -22,18 +22,7 @@ PAWN_TABLE_WHITE = [
     0, 0, 0, 0, 0, 0, 0, 0
 ]
 
-BISHOP_TABLE_WHITE = [
-    -20, -10, -10, -10, -10, -10, -10, -20,
-    -10, 5, 0, 0, 0, 0, 5, -10,
-    -10, 10, 10, 10, 10, 10, 10, -10,
-    -10, 20, 10, 10, 10, 10, 20, -10,
-    -10, 0, 15, 10, 10, 15, 0, -10,
-    -10, 0, 5, 10, 10, 5, 0, -10,
-    -10, 10, 0, 0, 0, 0, 10, -10,
-    -20, -10, -10, -10, -10, -10, -10, -20
-]
-
-KNIGHT_TABLE = [
+KNIGHT_TABLE_WHITE = [
     -50, -40, -30, -30, -30, -30, -40, -50,
     -40, 20, 0, 0, 0, 0, 20, -40,
     10, 15, 30, 25, 25, 30, 15, 10,
@@ -44,23 +33,17 @@ KNIGHT_TABLE = [
     -50, -40, -30, -30, -30, -30, -40, -50
 ]
 
-# Flipping piece-square tables for black (mirroring the table for white)
-def flip_table(table):
-    """Flips a piece-square table for black (mirror effect)."""
-    return table[::-1]
+# Flipping piece-square tables for black (mirror effect)
+PAWN_TABLE_BLACK = PAWN_TABLE_WHITE[::-1]
+KNIGHT_TABLE_BLACK = KNIGHT_TABLE_WHITE[::-1]
 
-PAWN_TABLE_BLACK = flip_table(PAWN_TABLE_WHITE)
-KNIGHT_TABLE_BLACK = flip_table(KNIGHT_TABLE)
-BISHOP_TABLE_BLACK = flip_table(BISHOP_TABLE_WHITE)
 # Function to get piece-square value based on color
 def piece_square_value(piece_type, square, color):
     if piece_type == chess.PAWN:
         return PAWN_TABLE_WHITE[square] if color == chess.WHITE else PAWN_TABLE_BLACK[square]
     if piece_type == chess.KNIGHT:
-        return KNIGHT_TABLE[square] if color == chess.WHITE else KNIGHT_TABLE_BLACK[square]
-    if piece_type == chess.BISHOP:
-        return BISHOP_TABLE_WHITE[square] if color == chess.WHITE else BISHOP_TABLE_BLACK[square]
-    # Add similar tables for other pieces
+        return KNIGHT_TABLE_WHITE[square] if color == chess.WHITE else KNIGHT_TABLE_BLACK[square]
+    # Add other piece-square tables as necessary
     return 0
 
 class Compute:
@@ -68,12 +51,19 @@ class Compute:
         pass
 
     def evaluate_position(self, board, color):
-        if color == 0:
-            color = True #White
-        else:
-            color = False # Black
         score = 0
-        score += self.material_evaluation(board, color)
+        own_pieces = board.occupied_co[color]
+        opp_pieces = board.occupied_co[not color]
+
+        # Iterate over all squares and calculate material and positional value
+        for square in chess.SQUARES:
+            piece = board.piece_at(square)
+            if piece:
+                value = PIECE_VALUES[piece.piece_type]
+                positional_value = piece_square_value(piece.piece_type, square, piece.color)
+                score += (value + positional_value) if piece.color == color else -(value + positional_value)
+
+        # Evaluate pawn structure, king safety, etc.
         score += self.pawn_structure(board, color)
         score += self.king_safety(board, color)
         score += self.mobility_evaluation(board, color)
@@ -81,6 +71,7 @@ class Compute:
         score += self.rook_activity(board, color)
         score += self.connected_rooks(board, color)
         score += self.outpost_bonus(board, color)
+
         score -= self.pawn_structure(board, not color)
         score -= self.king_safety(board, not color)
         score -= self.mobility_evaluation(board, not color)
@@ -88,148 +79,120 @@ class Compute:
         score -= self.rook_activity(board, not color)
         score -= self.connected_rooks(board, not color)
         score -= self.outpost_bonus(board, not color)
-        return score
 
-    def material_evaluation(self, board, color):
-        score = 0
-        for square in chess.SQUARES:
-            piece = board.piece_at(square)
-            if piece:
-                value = PIECE_VALUES[piece.piece_type]
-                positional_value = piece_square_value(piece.piece_type, square, piece.color)
-                
-                if piece.color == color:
-                    score += value + positional_value
-                else:
-                    score -= value + positional_value
+        # Return the final score
+        print(score)
         return score
 
     def pawn_structure(self, board, color):
         score = 0
         pawns = board.pieces(chess.PAWN, color)
+        opponent_pawns = board.pieces(chess.PAWN, not color)
+
+        # Check for doubled, isolated, passed, and backward pawns
         for pawn in pawns:
             file = chess.square_file(pawn)
             rank = chess.square_rank(pawn)
 
-            # Check for doubled pawns
+            # Doubled pawns
             same_file_pawns = [sq for sq in pawns if chess.square_file(sq) == file]
             if len(same_file_pawns) > 1:
-                score -= 50  # Penalty for doubled pawns
+                score -= 50
 
-            # Check for isolated pawns (no adjacent pawns)
+            # Isolated pawns
             adjacent_files = [file - 1, file + 1]
-            adjacent_pawns = [sq for sq in pawns if chess.square_file(sq) in adjacent_files]
-            if not adjacent_pawns:
-                score -= 50  # Penalty for isolated pawns
-            
-            # Check for passed pawns
-            passed = True
-            for sq in board.pieces(chess.PAWN, not color):
-                if chess.square_file(sq) == file and (
-                    (color == chess.WHITE and chess.square_rank(sq) > rank) or
-                    (color == chess.BLACK and chess.square_rank(sq) < rank)
-                ):
-                    passed = False
-                    break
-            if passed:
-                score += 100  # Bonus for passed pawns
+            isolated = not any(chess.square_file(p) in adjacent_files for p in pawns)
+            if isolated:
+                score -= 50
 
-            # Check for backward pawns
-            backward = True
-            for adj_file in adjacent_files:
-                adjacent_pawn = board.piece_at(chess.square(adj_file, rank - 1 if color == chess.WHITE else rank + 1))
-                if adjacent_pawn and adjacent_pawn.piece_type == chess.PAWN and adjacent_pawn.color == color:
-                    backward = False
-                    break
+            # Passed pawns
+            passed = not any(
+                chess.square_file(p) == file and (
+                    (color == chess.WHITE and chess.square_rank(p) > rank) or
+                    (color == chess.BLACK and chess.square_rank(p) < rank)
+                )
+                for p in opponent_pawns
+            )
+            if passed:
+                score += 100
+
+            # Backward pawns
+            backward = all(
+                file_offset not in range(8) or not board.piece_at(chess.square(file_offset, rank - 1 if color == chess.WHITE else rank + 1))
+                for file_offset in [file - 1, file + 1]
+            )
             if backward:
-                score -= 30  # Penalty for backward pawns
-        
+                score -= 30
+
         return score
 
     def king_safety(self, board, color):
         score = 0
         king_square = board.king(color)
-
-        # Check for pawn shield around the king
         king_file = chess.square_file(king_square)
         king_rank = chess.square_rank(king_square)
-        
-        if color == chess.WHITE:
-            shield_squares = [chess.square(king_file - 1, king_rank - 1),
-                              chess.square(king_file, king_rank - 1),
-                              chess.square(king_file + 1, king_rank - 1)]
-        else:
-            shield_squares = [chess.square(king_file - 1, king_rank + 1),
-                              chess.square(king_file, king_rank + 1),
-                              chess.square(king_file + 1, king_rank + 1)]
-        
-        for sq in shield_squares:
-            if board.piece_at(sq) is None or board.piece_at(sq).piece_type != chess.PAWN:
-                score -= 50  # Penalty for missing pawn shield
 
-        # Penalty for an open file near the king
-        for file_offset in [-1, 0, 1]:
-            if 0 <= king_file + file_offset < 8:
-                if not any(board.piece_at(chess.square(king_file + file_offset, rank)) == chess.PAWN
-                           for rank in range(king_rank - 1, king_rank + 2)):
-                    score -= 30
-        
+        # Check for pawn shield around the king
+        shield_squares = [
+            chess.square(king_file + offset, king_rank - 1) if color == chess.WHITE else chess.square(king_file + offset, king_rank + 1)
+            for offset in [-1, 0, 1]
+        ]
+
+        for sq in shield_squares:
+            if 0 <= chess.square_file(sq) < 8 and 0 <= chess.square_rank(sq) < 8:
+                piece = board.piece_at(sq)
+                if piece is None or piece.piece_type != chess.PAWN:
+                    score -= 50  # Penalty for missing pawn shield
+
         return score
 
     def mobility_evaluation(self, board, color):
-        return len(list(board.legal_moves))
+        legal_moves = len(list(board.legal_moves))
+        return legal_moves
 
     def bishop_pair_bonus(self, board, color):
-        """
-        Bonus for owning both bishops, which is considered an advantage in open positions.
-        """
         if len(board.pieces(chess.BISHOP, color)) == 2:
             return 30  # Bishop pair bonus
         return 0
 
     def rook_activity(self, board, color):
         score = 0
-        for square in board.pieces(chess.ROOK, color):
-            if board.is_open_file(chess.square_file(square)):
-                score += 50  #open file
-            if chess.square_rank(square) == 7 and color == chess.WHITE or chess.square_rank(square) == 0 and color == chess.BLACK:
-                score += 30  # Rook on 7th or 8th rank
+        for rook in board.pieces(chess.ROOK, color):
+            file = chess.square_file(rook)
+
+            # Open file bonus (no pawns on this file)
+            open_file = all(
+                board.piece_at(chess.square(file, rank)) is None or board.piece_at(chess.square(file, rank)).piece_type != chess.PAWN
+                for rank in range(8)
+            )
+            if open_file:
+                score += 50
+
+            # 7th/8th rank bonus for rooks
+            if chess.square_rank(rook) == (7 if color == chess.WHITE else 0):
+                score += 30
+
         return score
 
     def connected_rooks(self, board, color):
-        """
-        Bonus for connected rooks on the same rank or file.
-        """
         rooks = list(board.pieces(chess.ROOK, color))
         if len(rooks) == 2:
             if chess.square_file(rooks[0]) == chess.square_file(rooks[1]) or chess.square_rank(rooks[0]) == chess.square_rank(rooks[1]):
-                return 30  # Rook connection
+                return 30  # Bonus for connected rooks
         return 0
 
     def outpost_bonus(self, board, color):
-        """
-        Bonus for knights or bishops placed on outposts (squares that cannot be attacked by enemy pawns).
-        """
         score = 0
-        outposts = [chess.square_file(i) for i in range(8)]
-        for square in board.pieces(chess.KNIGHT, color):
-            file = chess.square_file(square)
-            rank = chess.square_rank(square)
-            if color == chess.WHITE and rank >= 4:
-                if not any(board.piece_at(chess.square(file, r)) == chess.PAWN and board.piece_at(chess.square(file, r)).color != color for r in range(rank, 8)):
-                    score += 40  # Bonus for knights on outposts
-            elif color == chess.BLACK and rank <= 3:
-                if not any(board.piece_at(chess.square(file, r)) == chess.PAWN and board.piece_at(chess.square(file, r)).color != color for r in range(0, rank + 1)):
-                    score += 25  # Bonus for knights on outposts
-
-        for square in board.pieces(chess.BISHOP, color):
-            file = chess.square_file(square)
-            rank = chess.square_rank(square)
-            if color == chess.WHITE and rank >= 4:
-                if not any(board.piece_at(chess.square(file, r)) == chess.PAWN and board.piece_at(chess.square(file, r)).color != color for r in range(rank, 8)):
-                    score += 25  
-            elif color == chess.BLACK and rank <= 3:
-                if not any(board.piece_at(chess.square(file, r)) == chess.PAWN and board.piece_at(chess.square(file, r)).color != color for r in range(0, rank + 1)):
-                    score += 10  
+        knights = board.pieces(chess.KNIGHT, color)
+        for knight in knights:
+            file = chess.square_file(knight)
+            rank = chess.square_rank(knight)
+            if (color == chess.WHITE and rank >= 4) or (color == chess.BLACK and rank <= 3):
+                outpost = not any(
+                    board.piece_at(chess.square(file, r)) and board.piece_at(chess.square(file, r)).piece_type == chess.PAWN
+                    for r in (range(rank, 8) if color == chess.WHITE else range(0, rank + 1))
+                )
+                if outpost:
+                    score += 40
 
         return score
