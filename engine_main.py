@@ -4,7 +4,7 @@ import re
 import opening_pull
 import Compute
 
-class opening_tree(opening_pull.opening_pull):
+class engine_main(opening_pull.opening_pull):
     def __init__(self, color, move):
         self.color = color  # 0 for white, 1 for black
         self.board = chess.Board()
@@ -44,14 +44,13 @@ class opening_tree(opening_pull.opening_pull):
             return None
         return result  # Return the optimal move from opening theory
 
+    def print_board(self):
+        print(self.board)
+
 # Example of usage
-color = 0  # Let's assume the engine plays white
+color = 0  # Assume the engine plays white
 move_sequence = []  # Empty at start of the game
 
-# Initialize the opening tree
-engine = opening_tree(color, move_sequence)
-
-# Simulate some moves
-engine.push_move('e2e4')
-engine.push_move('e7e5')
-engine.make_move()
+# Test
+engine = engine_main(color, move_sequence)
+engine.print_board()
