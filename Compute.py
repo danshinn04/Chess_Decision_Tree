@@ -1,5 +1,5 @@
 import chess
-
+from timeit import default_timer as timer
 # Constants for piece values
 PIECE_VALUES = {
     chess.PAWN: 100,
@@ -50,7 +50,7 @@ class Compute:
 
     def evaluate_position(self, board, color):
         score = 0
-        
+        start = timer()
         # Iterate over all pieces directly
         for piece_type in PIECE_VALUES:
             for square in board.pieces(piece_type, color):
@@ -75,7 +75,9 @@ class Compute:
         score -= self.rook_activity(board, not color)
         score -= self.connected_rooks(board, not color)
         score -= self.outpost_bonus(board, not color)
-        print(score)
+        
+        end = timer()
+        print(score, "Computation time: ", end-start)
         return score
 
     def pawn_structure(self, board, color):
