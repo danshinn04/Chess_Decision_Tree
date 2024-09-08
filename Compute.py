@@ -4,13 +4,12 @@ import chess
 PIECE_VALUES = {
     chess.PAWN: 100,
     chess.KNIGHT: 320,
-    chess.BISHOP: 330,
+    chess.BISHOP: 330, #Bishop is considered to be slightly better than knights
     chess.ROOK: 500,
     chess.QUEEN: 900,
     chess.KING: 20000
 }
 
-# Piece-square tables for WHITE and BLACK
 PAWN_TABLE_WHITE = [
     0, 0, 0, 0, 0, 0, 0, 0,
     35, 35, 35, 50, 50, 35, 35, 35,
@@ -33,18 +32,17 @@ KNIGHT_TABLE_WHITE = [
     -50, -40, -30, -30, -30, -30, -40, -50
 ]
 
-# Flipping piece-square tables for black (mirror effect)
+# Flipping piece-square tables for black
 PAWN_TABLE_BLACK = PAWN_TABLE_WHITE[::-1]
 KNIGHT_TABLE_BLACK = KNIGHT_TABLE_WHITE[::-1]
 
-# Function to get piece-square value based on color
 def piece_square_value(piece_type, square, color):
+    """Returns piece-square table value based on piece type and color."""
     if piece_type == chess.PAWN:
         return PAWN_TABLE_WHITE[square] if color == chess.WHITE else PAWN_TABLE_BLACK[square]
     if piece_type == chess.KNIGHT:
         return KNIGHT_TABLE_WHITE[square] if color == chess.WHITE else KNIGHT_TABLE_BLACK[square]
-    # Add other piece-square tables as necessary
-    return 0
+    return 0  
 
 class Compute:
     def __init__(self):
@@ -52,18 +50,15 @@ class Compute:
 
     def evaluate_position(self, board, color):
         score = 0
-        own_pieces = board.occupied_co[color]
-        opp_pieces = board.occupied_co[not color]
+        
+        # Iterate over all pieces directly
+        for piece_type in PIECE_VALUES:
+            for square in board.pieces(piece_type, color):
+                score += PIECE_VALUES[piece_type] + piece_square_value(piece_type, square, color)
+            for square in board.pieces(piece_type, not color):
+                score -= PIECE_VALUES[piece_type] + piece_square_value(piece_type, square, not color)
 
-        # Iterate over all squares and calculate material and positional value
-        for square in chess.SQUARES:
-            piece = board.piece_at(square)
-            if piece:
-                value = PIECE_VALUES[piece.piece_type]
-                positional_value = piece_square_value(piece.piece_type, square, piece.color)
-                score += (value + positional_value) if piece.color == color else -(value + positional_value)
-
-        # Evaluate pawn structure, king safety, etc.
+        # Evaluate heurestics
         score += self.pawn_structure(board, color)
         score += self.king_safety(board, color)
         score += self.mobility_evaluation(board, color)
@@ -72,6 +67,7 @@ class Compute:
         score += self.connected_rooks(board, color)
         score += self.outpost_bonus(board, color)
 
+        # Opp side eval
         score -= self.pawn_structure(board, not color)
         score -= self.king_safety(board, not color)
         score -= self.mobility_evaluation(board, not color)
@@ -79,8 +75,6 @@ class Compute:
         score -= self.rook_activity(board, not color)
         score -= self.connected_rooks(board, not color)
         score -= self.outpost_bonus(board, not color)
-
-        # Return the final score
         print(score)
         return score
 
@@ -88,29 +82,25 @@ class Compute:
         score = 0
         pawns = board.pieces(chess.PAWN, color)
         opponent_pawns = board.pieces(chess.PAWN, not color)
-
-        # Check for doubled, isolated, passed, and backward pawns
+        #Optimized search for backwards pawn
+        pawn_files = [chess.square_file(p) for p in pawns]
         for pawn in pawns:
             file = chess.square_file(pawn)
             rank = chess.square_rank(pawn)
 
             # Doubled pawns
-            same_file_pawns = [sq for sq in pawns if chess.square_file(sq) == file]
-            if len(same_file_pawns) > 1:
+            if pawn_files.count(file) > 1:
                 score -= 50
 
             # Isolated pawns
-            adjacent_files = [file - 1, file + 1]
-            isolated = not any(chess.square_file(p) in adjacent_files for p in pawns)
-            if isolated:
+            if file - 1 not in pawn_files and file + 1 not in pawn_files:
                 score -= 50
 
             # Passed pawns
-            passed = not any(
-                chess.square_file(p) == file and (
-                    (color == chess.WHITE and chess.square_rank(p) > rank) or
-                    (color == chess.BLACK and chess.square_rank(p) < rank)
-                )
+            passed = all(
+                chess.square_file(p) != file or
+                (color == chess.WHITE and chess.square_rank(p) <= rank) or
+                (color == chess.BLACK and chess.square_rank(p) >= rank)
                 for p in opponent_pawns
             )
             if passed:
@@ -118,8 +108,8 @@ class Compute:
 
             # Backward pawns
             backward = all(
-                file_offset not in range(8) or not board.piece_at(chess.square(file_offset, rank - 1 if color == chess.WHITE else rank + 1))
-                for file_offset in [file - 1, file + 1]
+                chess.square_file(p) != file or chess.square_rank(p) < rank if color == chess.WHITE else chess.square_rank(p) > rank
+                for p in pawns
             )
             if backward:
                 score -= 30
@@ -179,7 +169,8 @@ class Compute:
         if len(rooks) == 2:
             if chess.square_file(rooks[0]) == chess.square_file(rooks[1]) or chess.square_rank(rooks[0]) == chess.square_rank(rooks[1]):
                 return 30  # Bonus for connected rooks
-        return 0
+        return 0  # Return 0 when rooks are not connected
+
 
     def outpost_bonus(self, board, color):
         score = 0

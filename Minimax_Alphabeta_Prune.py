@@ -24,11 +24,13 @@ class minimax_alphabeta_prune:
         self.depth = depth
         self.compute = compute
         self.transposition_table = TranspositionTable()
+        self.killer_moves = [[] for _ in range(depth)]  # Killer moves for each depth
+        self.history_heuristic = {}  # History heuristic table
 
-    def move_ordering(self, board, color):
+    def move_ordering(self, board, color, depth):
         """
         Order moves to improve alpha-beta pruning efficiency.
-        Sort captures and checks first, followed by quiet moves.
+        Sort captures, checks, threats, killer moves, and history heuristic.
         """
         moves = list(board.legal_moves)
         ordered_moves = []
@@ -42,11 +44,28 @@ class minimax_alphabeta_prune:
                 quiet_moves.append(move)  # Quiet moves
             board.pop()
 
-        return ordered_moves + quiet_moves
+        # Apply killer move heuristic and history heuristic for better move ordering
+        ordered_moves = self.killer_moves[depth] + ordered_moves + quiet_moves
+        ordered_moves.sort(key=lambda m: self.history_heuristic.get(m, 0), reverse=True)
+
+        return ordered_moves
+
+    def null_move_pruning(self, board, depth, beta, color):
+        """
+        Null move pruning optimization: skip searching a move if a null move (passing) can still result in a beta cutoff.
+        """
+        if depth < 3 or board.is_check():
+            return False
+
+        board.push(chess.Move.null())
+        score = -self.alphabeta(board, depth - 3, -beta, -beta + 1, False, not color)
+        board.pop()
+
+        return score >= beta
 
     def quiescence_search(self, board, alpha, beta, color):
         """
-        Quiescence search to avoid the horizon effect by extending captures and checks.
+        Quiescence search to avoid the horizon effect by extending captures, checks, and threats.
         """
         stand_pat = self.compute.evaluate_position(board, color)
 
@@ -56,8 +75,8 @@ class minimax_alphabeta_prune:
             alpha = stand_pat
 
         for move in board.legal_moves:
-            if not board.is_capture(move):
-                continue  # Only search captures in quiescence search
+            if not (board.is_capture(move) or board.gives_check(move)):
+                continue  # Only search captures and checks in quiescence search
             board.push(move)
             score = -self.quiescence_search(board, -beta, -alpha, not color)
             board.pop()
@@ -69,11 +88,16 @@ class minimax_alphabeta_prune:
 
         return alpha
 
-    def alphabeta(self, board, depth, alpha, beta, maximizing_player, color):
+    def alphabeta(self, board, depth, alpha, beta, maximizing_player, color, ply=0):
         """
-        Alpha-beta pruning function with move ordering, quiescence search, and transposition table lookup using FEN.
+        Alpha-beta pruning function with enhancements:
+        - Move ordering
+        - Null move pruning
+        - Quiescence search
+        - Killer move heuristic
+        - Late Move Reductions (LMR)
+        - Transposition table lookup
         """
-
         # Transposition Table Lookup
         tt_entry = self.transposition_table.lookup(board)
         if tt_entry is not None and tt_entry['depth'] >= depth:
@@ -89,18 +113,38 @@ class minimax_alphabeta_prune:
         if depth == 0:
             return self.quiescence_search(board, alpha, beta, color)
 
-        legal_moves = self.move_ordering(board, color)
+        if maximizing_player and self.null_move_pruning(board, depth, beta, color):
+            return beta
+
+        legal_moves = self.move_ordering(board, color, ply)
 
         if maximizing_player:
             max_eval = float('-inf')
+            first_move = True  # Principal Variation Search (PVS)
+
             for move in legal_moves:
+                if move not in board.legal_moves:
+                    continue  # Ensure move is legal before pushing
+
                 board.push(move)
-                eval = self.alphabeta(board, depth - 1, alpha, beta, False, color)
+
+                if first_move:
+                    eval = self.alphabeta(board, depth - 1, alpha, beta, False, color, ply + 1)
+                    first_move = False
+                else:
+                    # Late Move Reductions (LMR)
+                    eval = self.alphabeta(board, depth - 2 if depth > 2 else depth - 1, alpha, alpha + 1, False, color, ply + 1)
+                    if eval > alpha:
+                        eval = self.alphabeta(board, depth - 1, alpha, beta, False, color, ply + 1)
+
                 board.pop()
+
                 max_eval = max(max_eval, eval)
                 alpha = max(alpha, eval)
+
                 if beta <= alpha:
-                    break  # Beta cutoff
+                    self.killer_moves[ply].insert(0, move)  # Save the killer move
+                    break
 
             # Store the result in the transposition table
             if max_eval <= alpha:
@@ -114,14 +158,31 @@ class minimax_alphabeta_prune:
 
         else:
             min_eval = float('inf')
+            first_move = True  # Principal Variation Search (PVS)
+
             for move in legal_moves:
+                if move not in board.legal_moves:
+                    continue  # Ensure move is legal before pushing
+
                 board.push(move)
-                eval = self.alphabeta(board, depth - 1, alpha, beta, True, color)
+
+                if first_move:
+                    eval = self.alphabeta(board, depth - 1, alpha, beta, True, color, ply + 1)
+                    first_move = False
+                else:
+                    # Late Move Reductions (LMR)
+                    eval = self.alphabeta(board, depth - 2 if depth > 2 else depth - 1, beta - 1, beta, True, color, ply + 1)
+                    if eval < beta:
+                        eval = self.alphabeta(board, depth - 1, alpha, beta, True, color, ply + 1)
+
                 board.pop()
+
                 min_eval = min(min_eval, eval)
                 beta = min(beta, eval)
+
                 if beta <= alpha:
-                    break  # Alpha cutoff
+                    self.killer_moves[ply].insert(0, move)  # Save the killer move
+                    break
 
             # Store the result in the transposition table
             if min_eval <= alpha:
@@ -140,7 +201,10 @@ class minimax_alphabeta_prune:
         best_move = None
         best_value = float('-inf') if color == chess.WHITE else float('inf')
 
-        for move in self.move_ordering(board, color):
+        for move in self.move_ordering(board, color, 0):
+            if move not in board.legal_moves:
+                continue  # Ensure move is legal before pushing
+
             board.push(move)
             board_value = self.alphabeta(board, self.depth - 1, float('-inf'), float('inf'), False, color)
             board.pop()

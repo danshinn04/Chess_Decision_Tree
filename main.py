@@ -61,7 +61,7 @@ def main():
     
     # Initialize the engine (1 for black)
     move_sequence = []  # Empty sequence at the start
-    engine = engine_main(color=1, move=move_sequence)  # Engine plays black, change to 0 for white
+    engine = engine_main(color=0, move=move_sequence)  # Engine plays black, change to 0 for white
     
     selected_square = None
     dragging_piece = None
