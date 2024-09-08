@@ -1,3 +1,5 @@
+# NOTE: THIS IS NOT FINISHED; The Engine part is complete but the neural network is still work in progress!
+# Part I 
 # Chess Engine with Minimax Alpha-Beta Pruning and Opening Book
 
 This chess engine project implements an advanced AI player using Minimax Alpha-Beta Pruning, enhanced with various heuristic techniques. It also incorporates an opening book retrieval system to improve early-game play using historical game data from a Lichess API. The engine can be used to simulate chess games, evaluate board positions, and play against a human opponent.
