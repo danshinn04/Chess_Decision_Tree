@@ -3,7 +3,7 @@ import random
 import re
 import opening_pull
 import Compute
-from Minimax_Alphabeta_Prune import minimax_alphabeta_prune  # Import the class
+from Minimax_Alphabeta_Prune import minimax_alphabeta_prune
 
 class engine_main(opening_pull.opening_pull):
     def __init__(self, color, move):
@@ -11,7 +11,7 @@ class engine_main(opening_pull.opening_pull):
         self.color = color  # 0 for white, 1 for black
         self.board = chess.Board()
         self.move_sequence = []
-        self.compute = Compute.Compute()  # Assuming Compute is set up to evaluate chess positions
+        self.compute = Compute.Compute()
         self.search_engine = minimax_alphabeta_prune(depth=4, compute=self.compute)  # Initialize Minimax with Alpha-Beta pruning
         self.querycondition = True
 
@@ -71,8 +71,9 @@ class engine_main(opening_pull.opening_pull):
         print(self.board)
 
 # Example usage
+'''
 if __name__ == "__main__":
-    color = 0  # Assume the engine plays white
+    color = 0 
     engine = engine_main(color, [])
 
     while not engine.board.is_game_over():
@@ -81,3 +82,4 @@ if __name__ == "__main__":
             engine.player_move()
         else:
             engine.make_move()
+'''

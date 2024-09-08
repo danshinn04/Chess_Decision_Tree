@@ -40,7 +40,7 @@ class opening_pull():
                     print("There did not exist tabulation")
                     top_moves = [move['uci'] for move in data[key][0:min(len(data[key]), 3)]]
                     total_moves = [move['white'] + move['draws'] + move['black'] for move in data[key][0:min(len(data[key]), 3)]] 
-                    if sum(total_moves) < 10:
+                    if sum(total_moves) < 8:
                         print("Out of opening theory, just play")
                         return ""
                     #print("Top moves:", top_moves)

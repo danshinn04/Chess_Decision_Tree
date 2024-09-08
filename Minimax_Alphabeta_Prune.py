@@ -124,7 +124,7 @@ class minimax_alphabeta_prune:
 
             for move in legal_moves:
                 if move not in board.legal_moves:
-                    continue  # Ensure move is legal before pushing
+                    continue 
 
                 board.push(move)
 
@@ -146,7 +146,6 @@ class minimax_alphabeta_prune:
                     self.killer_moves[ply].insert(0, move)  # Save the killer move
                     break
 
-            # Store the result in the transposition table
             if max_eval <= alpha:
                 self.transposition_table.store(board, max_eval, depth, 'upperbound')
             elif max_eval >= beta:
@@ -162,7 +161,7 @@ class minimax_alphabeta_prune:
 
             for move in legal_moves:
                 if move not in board.legal_moves:
-                    continue  # Ensure move is legal before pushing
+                    continue 
 
                 board.push(move)
 
@@ -203,7 +202,7 @@ class minimax_alphabeta_prune:
 
         for move in self.move_ordering(board, color, 0):
             if move not in board.legal_moves:
-                continue  # Ensure move is legal before pushing
+                continue  
 
             board.push(move)
             board_value = self.alphabeta(board, self.depth - 1, float('-inf'), float('inf'), False, color)
