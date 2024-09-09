@@ -1,4 +1,4 @@
-# NOTE: THIS IS NOT FINISHED; The Engine part is complete but the neural network is still work in progress!
+# NOTE: The Engine Algorithm is complete but the neural network is still work in progress!
 # Part I 
 # Chess Engine with Minimax Alpha-Beta Pruning and Opening Book
 
