@@ -71,7 +71,7 @@ class engine_main(opening_pull.opening_pull):
         print(self.board)
 
 # Example usage
-'''
+
 if __name__ == "__main__":
     color = 0 
     engine = engine_main(color, [])
@@ -82,4 +82,3 @@ if __name__ == "__main__":
             engine.player_move()
         else:
             engine.make_move()
-'''
