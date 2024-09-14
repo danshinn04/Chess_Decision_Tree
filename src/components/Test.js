@@ -39,10 +39,9 @@ const Test = () => {
         console.log(takenByOpponent, opponentTurn, e.target.parentNode, 'this')
 
         if (correctPlayer) {
-            if (takenByOpponent) {
-                e.target.remove()
-                e.target.append(draggedElement)
-                changePlayer()
+
+            e.target.append(draggedElement)
+            changePlayer()
 
 
             }
@@ -51,7 +50,7 @@ const Test = () => {
 
 
 
-    }
+
 
     const changePlayer = () => {
 
