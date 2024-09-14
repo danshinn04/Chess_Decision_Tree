@@ -6,19 +6,22 @@ import Test from "./components/Test";
 
 function App() {
   return (
-    <div className="App">
+      <div className="App">
 
-      <BrowserRouter>
+          <BrowserRouter>
 
-        <Routes>
-          <Route path="/" element={<Test/>} />
-        </Routes>
+              <Routes>
+                  <Route path="/" element={<Test/>}/>
+              </Routes>
 
-      </BrowserRouter>
+          </BrowserRouter>
 
 
+          <h1 className="text-3xl bg-green-200 font-bold underline">
+              Hello world!
+          </h1>
 
-    </div>
+      </div>
   );
 }
 

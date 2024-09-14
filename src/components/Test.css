@@ -12,16 +12,22 @@
             display: flex;
             justify-content: center;
             align-items: center;
+
+            position: relative;
+
             img {
                 height: 60px;
                 width: 60px;
+                position: relative;
+
+
             }
         }
-        .black {
+        .blackSquare {
             background-color: gray;
 
         }
-        .white {
+        .whiteSquare {
             background-color: white;
         }
     }
