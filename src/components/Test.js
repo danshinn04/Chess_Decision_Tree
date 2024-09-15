@@ -9,6 +9,7 @@ const Test = () => {
 
 
     let draggedElement
+    let startPositionId
     const forever = 0
 
     const [playerTurn, changePlayerTurn] = useState('white')
@@ -19,9 +20,10 @@ const Test = () => {
     }, [playerTurn]);
 
     const dragStart = (e) => {
-        console.log(e.target.parentNode, "parent node")
-        draggedElement=e.target.parentNode
-        console.log(draggedElement)
+
+        draggedElement=e.target.parentNode.parentNode //the square
+        startPositionId = e.target.parentNode.parentNode
+        console.log(draggedElement, 'dragged')
 
     }
 
@@ -32,21 +34,45 @@ const Test = () => {
     const dragDrop = (e) => {
         e.stopPropagation()
 
-        const correctPlayer = draggedElement.classList.contains(playerTurnRef.current)
-        const opponentTurn = playerTurnRef.current === 'white' ? 'black': 'white'
-        console.log(correctPlayer, draggedElement.classList, playerTurnRef.current)
-        const takenByOpponent = e.target.parentNode?.classList.contains(opponentTurn)
-        console.log(takenByOpponent, opponentTurn, e.target.parentNode, 'this')
+        const correctPlayer = draggedElement.firstChild.classList.contains(playerTurnRef.current)
 
+        const opponentTurn = playerTurnRef.current === 'white' ? 'black': 'white'
+        console.log(correctPlayer, draggedElement.firstChild.classList, playerTurnRef.current)
+        const takenByOpponent = e.target.classList.contains(opponentTurn) // check if opp piece occupies that square
+        const taken = e.target.classList.contains(playerTurnRef.current) //checks if friendly piece occupies that square
+        console.log(taken, takenByOpponent, opponentTurn, e.target, 'this')
+
+        const valid = checkIfValid(e.target)
         if (correctPlayer) {
 
-            e.target.append(draggedElement)
+            if (valid && takenByOpponent) {
+                console.log(e.target, "e.target")
+                e.target.parentNode.parentNode.append(draggedElement.firstChild)
+                e.target.parentNode.parentNode.removeChild(e.target.parentNode)
+            }
+            if (taken) {
+                console.log('you cant go here')
+            }
+            if (valid) {
+                e.target.append(draggedElement.firstChild)
+            }
             changePlayer()
 
 
-            }
-
         }
+
+    }
+    const checkIfValid = (target) => {
+        const targetId = target.id || target.parentNode.parentNode.id
+        const startId = startPositionId.id
+        const piece = draggedElement.firstChild.id
+        console.log(targetId, startId, piece, 'valid')
+
+        switch(piece) {
+            case 1:
+                const piece = draggedElement.firstChild.id
+        }
+    }
 
 
 
@@ -82,13 +108,11 @@ const Test = () => {
                 square.addEventListener('dragover', dragOver) //when you're dragging and holding it
                 square.addEventListener('drop', dragDrop) //when you drop it
 
-                console.log('firstChild', square.firstChild)
+
 
                 cells.append(square)
-                console.log(BlackWhite, added, 'test')
 
             }
-            console.log(cells, 'cells')
             grid.append(cells)
 
 
@@ -143,13 +167,14 @@ const Test = () => {
 
 
                     pieceImg.src = temp2.piece[2].default
-                    pieceImg.classname = 'individualPiece'
+                    pieceImg.className = `individualPiece ${whatColor}`
+
 
                     piece.append(pieceImg)
                     piece.className=`piece ${whatColor}`
 
                     piece.setAttribute('draggable', true) //child doesn't exist at createBoard function yet
-
+                    piece.id = pieceDict[fen[i].toLowerCase()]
 
 
                     temp.append(piece)
