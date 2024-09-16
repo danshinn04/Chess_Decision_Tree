@@ -9,29 +9,27 @@ export class Pieces {
         const pieceColor = color === 'white' ? white : black;
 
 
-        // Choose the piece based on the number provided (1-6)
+        // Choose the piece based on the number provided piece name
         switch(piece) {
-            case 1:
-                this.piece = [1, color, pieceColor.King];
+            case 'king':
+                this.piece = ['king', color, pieceColor.King];
                 break;
-            case 2:
-                this.piece = [2, color, pieceColor.Pawn];
+            case 'pawn':
+                this.piece = ['pawn', color, pieceColor.Pawn];
                 break;
-            case 3:
-                this.piece = [3, color, pieceColor.Knight];
+            case 'knight':
+                this.piece = ['knight', color, pieceColor.Knight];
                 break;
-            case 4:
-                this.piece = [4, color, pieceColor.Bishop];
+            case 'bishop':
+                this.piece = ['bishop', color, pieceColor.Bishop];
                 break;
-            case 5:
-                this.piece = [5, color, pieceColor.Rook];
+            case 'rook':
+                this.piece = ['rook', color, pieceColor.Rook];
                 break;
-            case 6:
-                this.piece = [6, color, pieceColor.Queen];
+            case 'queen':
+                this.piece = ['queen', color, pieceColor.Queen];
                 break;
-            default:
-                throw new Error("Invalid piece number. Must be between 1 and 6.");
-        }
+            }
     }
 
 }
