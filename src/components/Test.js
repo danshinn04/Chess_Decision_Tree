@@ -165,6 +165,35 @@ const Test = () => {
                 }
 
                 return false
+
+            case 'queen':
+                if ((targetId-startId) % 9 !== 0 && (targetId-startId) % 7 !== 0  &&
+                    ((targetId-startId) % 8 !== 0 && Math.abs(targetId-startId) > 8)) {
+                    console.log('invalid queen move')
+                    return false
+
+
+                }
+
+                if ((targetId-startId) % 9 === 0) {
+                    dir = (targetId-startId)/Math.abs(targetId-startId)*9
+                }
+                else if ((targetId-startId) % 7 === 0) {
+                    dir = (targetId-startId)/Math.abs(targetId-startId)*7
+                }
+                else if ((targetId-startId) % 8 === 0) {
+                    dir = (targetId-startId)/Math.abs(targetId-startId)*8
+                }
+                else if(Math.abs(targetId-startId) < 8 && (startPositionId.parentNode.id === target.parentNode.id)) {
+                    console.log('both are true')
+                    dir = (targetId-startId)/Math.abs(targetId-startId)
+
+                }
+                console.log(dir, 'dir')
+                if (dir !== undefined) {
+                    if (!checkForPiecesInWay(dir, startId, targetId)) return true
+                }
+                return false;
         }
     }
     const checkForPiecesInWay = (dir, startId, targetId) => {
