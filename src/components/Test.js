@@ -126,6 +126,7 @@ const Test = () => {
             case 'bishop':
                 const maxPieceGoThrough = 0;
                 let piecesInWay = 0;
+                //check if it's diagonal
                 if ((targetId-startId) % 9 !== 0 && (targetId-startId) % 7 !== 0) {
                     console.log('invalid bishop move')
                     return false
@@ -150,10 +151,11 @@ const Test = () => {
                     console.log('bad rook move')
                     return false
                 }
-
+                //if moving up/down
                 if ((targetId-startId) % 8 === 0) {
                     dir = (targetId-startId)/Math.abs(targetId-startId)*8
                 }
+                //if moving left/right. Checks if it's in the same horizontal.
                 else if(Math.abs(targetId-startId) < 8 && (startPositionId.parentNode.id === target.parentNode.id)) {
                     console.log('both are true')
                     dir = (targetId-startId)/Math.abs(targetId-startId)
@@ -169,6 +171,7 @@ const Test = () => {
             case 'queen':
                 if ((targetId-startId) % 9 !== 0 && (targetId-startId) % 7 !== 0  &&
                     ((targetId-startId) % 8 !== 0 && Math.abs(targetId-startId) > 8)) {
+                    //if not diagonal or straight
                     console.log('invalid queen move')
                     return false
 
