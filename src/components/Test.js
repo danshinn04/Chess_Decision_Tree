@@ -136,7 +136,7 @@ const Test = () => {
                 if ((targetId-startId) % 9 === 0) {
                     dir = (targetId-startId)/Math.abs(targetId-startId)*9
                 }
-                if ((targetId-startId) % 7 === 0) {
+                else if ((targetId-startId) % 7 === 0) {
                     dir = (targetId-startId)/Math.abs(targetId-startId)*7
                 }
                 console.log(dir, 'dir')
@@ -144,10 +144,8 @@ const Test = () => {
                 return true
 
 
-
-            case 'queen':
-
             case 'rook':
+                console.log(startPositionId.parentNode.id, target.parentNode.id, 'horizontal')
                 if ((targetId-startId) % 8 !== 0 && Math.abs(targetId-startId) > 8) {
                     console.log('bad rook move')
                     return false
@@ -156,10 +154,17 @@ const Test = () => {
                 if ((targetId-startId) % 8 === 0) {
                     dir = (targetId-startId)/Math.abs(targetId-startId)*8
                 }
-                else {
-                    dir = 1
+                else if(Math.abs(targetId-startId) < 8 && (startPositionId.parentNode.id === target.parentNode.id)) {
+                    console.log('both are true')
+                    dir = (targetId-startId)/Math.abs(targetId-startId)
+
                 }
-                return true
+                console.log(dir, 'dir')
+                if (dir !== undefined) {
+                    if (!checkForPiecesInWay(dir, startId, targetId)) return true
+                }
+
+                return false
         }
     }
     const checkForPiecesInWay = (dir, startId, targetId) => {
@@ -208,7 +213,8 @@ const Test = () => {
 
         for (let file = 0; file < 8; file++) {
             const cells = document.createElement('div')
-            cells.className = 'Horizontal'
+            cells.className = `Horizontal`
+            cells.id=`Rows${file}`
             for (let rank = 0; rank < 8; rank++) {
 
                 const BlackWhite = ((file + rank) % 2) !== 0 ? 'black' : 'white'
@@ -237,7 +243,7 @@ const Test = () => {
     }, [forever])
 
 
-    const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
+    const fen = '1nbqkbnr/8/r7/8/8/7R/8/RNBQKBN1'
     const pieceDict = {
         'k': 'king',
         'p': 'pawn',
