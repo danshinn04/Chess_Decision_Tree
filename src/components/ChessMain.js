@@ -35,8 +35,6 @@ const ChessMain = () => {
 
     const dragStart = (e) => {
 
-
-
         draggedElement=e.target.parentNode.parentNode //the square
         startPositionId = e.target.parentNode.parentNode
         console.log(draggedElement, 'dragged')
@@ -64,8 +62,6 @@ const ChessMain = () => {
 
         const correctPlayer = draggedElement.firstChild.classList.contains(playerTurnRef.current)
 
-
-
         const opponentTurn = playerTurnRef.current === 'white' ? 'black': 'white'
         const takenByOpponent = e.target.classList.contains(opponentTurn) // check if opp piece occupies that square
         const taken = e.target.classList.contains(playerTurnRef.current) //checks if friendly piece occupies that square
@@ -75,22 +71,20 @@ const ChessMain = () => {
         console.log(valid, 'valid2')
         if (correctPlayer) {
 
-            if (valid && takenByOpponent) {
+            if (valid && takenByOpponent) { //checks if it's a valid move AND if there's an opponent piece on that square
 
                 e.target.parentNode.parentNode.append(draggedElement.firstChild)
                 e.target.parentNode.parentNode.removeChild(e.target.parentNode)
                 changePlayer()
             }
-            if (taken) {
+            else if (taken) { //checks if there's an ally piece on that square
                 console.log('you cant go here')
             }
-            if (valid) {
+            else if (valid) { //checks if the move is valid
                 e.target.append(draggedElement.firstChild)
                 console.log('append done')
                 changePlayer()
             }
-
-
 
         }
 
@@ -224,13 +218,7 @@ const ChessMain = () => {
             }
         }
         return false; //if piece not in way
-
-
     }
-
-
-
-
 
 
     const changePlayer = () => {
@@ -252,7 +240,6 @@ const ChessMain = () => {
 
     //set up FEN
     const FEN = '1nbqkbnr/8/r7/8/8/7R/8/RNBQKBN1'
-
 
 
     useEffect(() => {
@@ -279,37 +266,18 @@ const ChessMain = () => {
                 square.addEventListener('dragover', dragOver) //when you're dragging and holding it
                 square.addEventListener('drop', dragDrop) //when you drop it
 
-
-
                 cells.append(square)
 
             }
             grid.append(cells)
-
-
         }
-
-
-
     }, [forever])
-
-
-
-
-
 
     return <div>
 
-
         <div className="mainContainer">
-
-
             <div id='chessBoard' className='chessBoard'></div>
-
-
         </div>
-
-
 
         {isLoaded && <Chessboard fen={FEN}/>}
     </div>
