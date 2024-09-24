@@ -1,0 +1,59 @@
+.mainContainer {
+
+
+    margin: 0;
+
+    height: 100vh;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 90%;
+    background-image: url("../assets/images/layered-waves-haikei.svg");
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .chessBoard {
+        border: 1px solid black;
+        width: 640px;
+        height: 640px;
+        position: relative;
+
+
+
+        .Horizontal {
+            display: flex;
+            flex-direction: row;
+            .Cell {
+                height: 80px;
+                width: 80px;
+
+
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                position: relative;
+
+                img{
+                    height: 70px;
+                    width: 70px;
+                    position: relative;
+                    opacity: 100%;
+
+
+                }
+            }
+            .blackSquare {
+                background-color: rgba(50, 204, 50, 0.7);
+
+            }
+            .whiteSquare {
+                background-color: rgba(256, 256, 256, 0.7);
+
+            }
+        }
+
+
+    }
+}
