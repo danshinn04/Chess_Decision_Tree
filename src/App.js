@@ -2,7 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
-import Test from "./components/Test";
+import ChessMain from "./components/ChessMain";
 
 function App() {
   return (
@@ -11,15 +11,15 @@ function App() {
           <BrowserRouter>
 
               <Routes>
-                  <Route path="/" element={<Test/>}/>
+                  <Route path="/" element={<ChessMain/>}/>
               </Routes>
 
           </BrowserRouter>
 
 
-          <h1 className="text-3xl bg-green-200 font-bold underline">
-              Hello world!
-          </h1>
+          {/*<h1 className="text-3xl bg-green-200 font-bold underline">*/}
+          {/*    Hello world!*/}
+          {/*</h1>*/}
 
       </div>
   );
