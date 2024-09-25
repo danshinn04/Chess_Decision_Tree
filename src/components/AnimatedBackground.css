@@ -1,0 +1,21 @@
+.bubble {
+    width: 100px;
+    height: 50px;
+
+
+
+    /*transition-property: ;*/
+    /*transition-duration: ;*/
+    /*transition-timing-function: ;*/
+    /*transition-delay: ;*/
+    transition: all 0.3s ease;
+    background-color: lightyellow;
+    color: black;
+
+}
+.bubble:hover {
+    transform: translateY(-10px);
+    color: white;
+    background-color: darkorange;
+
+}

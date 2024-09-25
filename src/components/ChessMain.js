@@ -6,6 +6,8 @@ import './ChessMain.css'
 import {Pieces} from '../class/Pieces'
 import TailwindTest from "./TailwindTest";
 import Chessboard from "./Chessboard";
+import Particles from "./Particles";
+import AnimatedBackground from "./AnimatedBackground";
 const ChessMain = () => {
 
 
@@ -271,15 +273,18 @@ const ChessMain = () => {
             }
             grid.append(cells)
         }
-    }, [forever])
+    }, [])
 
     return <div>
+
+        <AnimatedBackground/>
 
         <div className="mainContainer">
             <div id='chessBoard' className='chessBoard'></div>
         </div>
 
         {isLoaded && <Chessboard fen={FEN}/>}
+
     </div>
 }
 
