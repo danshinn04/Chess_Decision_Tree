@@ -24,7 +24,7 @@ function App() {
           {/*    Hello world!*/}
           {/*</h1>*/}
 
-          <p>test</p>
+          <p>testing</p>
       </div>
   );
 }
