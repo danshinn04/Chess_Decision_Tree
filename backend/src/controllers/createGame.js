@@ -6,7 +6,7 @@ class createGame {
 
 
     static async create(req, res) {
-        console.log("works testing")
+        console.log("works")
         return res.status(200).send("backend works")
     }
 }
