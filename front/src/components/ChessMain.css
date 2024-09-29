@@ -1,0 +1,59 @@
+.mainContainer {
+
+
+    margin: 0;
+    position: relative;
+
+    /*background-repeat: no-repeat;*/
+    /*background-size: cover;*/
+    /*opacity: 90%;*/
+    /*background-image: url("../assets/images/forest.jpg");*/
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .chessBoard {
+        border: 1px solid black;
+        width: 80vh;
+        height: 80vh;
+        position: relative;
+
+
+
+        .Horizontal {
+            display: flex;
+            flex-direction: row;
+            .Cell {
+                height: 10vh;
+                width: 10vh;
+
+
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                position: relative;
+
+                img{
+                    height: 9vh;
+                    width: 9vh;
+                    position: relative;
+                    opacity: 100%;
+
+
+                }
+            }
+            .blackSquare {
+                background-color: rgba(50, 204, 50, 0.7);
+
+
+            }
+            .whiteSquare {
+                background-color: rgba(256, 256, 256, 0.7);
+
+            }
+        }
+
+
+    }
+}
