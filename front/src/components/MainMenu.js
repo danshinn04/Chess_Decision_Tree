@@ -11,7 +11,7 @@ const MainMenu = () => {
             })
 
             if (response.ok) {
-                console.log("ok");
+                console.log("ok test");
             }
         }
         catch {
