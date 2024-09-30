@@ -1,4 +1,5 @@
 
+import { nanoid } from 'nanoid';
 
 
 class createGame {
@@ -6,8 +7,19 @@ class createGame {
 
 
     static async create(req, res) {
-        console.log("work s")
-        return res.status(200).send("backend works")
+
+        try {
+            console.log("work s")
+            const link = nanoid(8);
+            return res.status(201).send({
+                Link: {link},
+                message: 'success'
+            })
+        }
+        catch{
+
+        }
+
     }
 }
 

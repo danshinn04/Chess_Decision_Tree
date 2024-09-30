@@ -2,8 +2,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {MouseEvent} from 'react'
 import {Chess} from 'chess.js'
-
-import './ChessMain.css'
+import './NewChess.css'
 import {Pieces} from '../class/Pieces'
 import TailwindTest from "./TailwindTest";
 import Chessboard from "./Chessboard";
@@ -15,10 +14,6 @@ const NewChess = () => {
     const [board, setBoard] = useState(game.board());
     console.log(game.board());
 
-
-
-
-
     const [isLoaded, setIsLoaded] = useState(false);
 
     const pieceDict = {
@@ -29,7 +24,6 @@ const NewChess = () => {
         'r': 'rook',
         'q': 'queen',
     }
-
 
     const FENtoGrid = (fen, remove) => {
 
@@ -44,7 +38,6 @@ const NewChess = () => {
         let file = 0;
         let rank = 7;
         for (let i = 0; i < fen.length; i++) {
-
 
             if (fen[i] === '/') {
                 file=0
@@ -65,26 +58,19 @@ const NewChess = () => {
                 else if (typeof fen[i] === 'string') {
                     const whatColor = fen[i] === fen[i].toUpperCase() ? 'white' : 'black'
 
-
-
                     const temp = document.getElementById(`${String(63-((7-rank)*8+file))}`)
-
 
                     if (temp.firstChild) {
                         temp.removeChild(temp.firstChild)
                     }
-                       console.log(temp.id, 'id')
+
 
                        const temp2 = new Pieces(whatColor, pieceDict[fen[i].toLowerCase()])
                        const piece = document.createElement('div')
                        const pieceImg = document.createElement('img')
 
-
-
-
                        pieceImg.src = temp2.piece[2].default
                        pieceImg.className = `individualPiece ${whatColor}`
-
 
                        piece.append(pieceImg)
                        piece.className=`piece ${whatColor}`
@@ -92,13 +78,10 @@ const NewChess = () => {
                        piece.setAttribute('draggable', true) //child doesn't exist at createBoard function yet
                        piece.id = pieceDict[fen[i].toLowerCase()]
 
-
                        temp.append(piece)
 
                        file++
-
                 }
-
             }
         }
     }
@@ -132,7 +115,6 @@ const NewChess = () => {
         }
     };
 
-
     let draggedElement
     let startPositionId
     let startPositionRole
@@ -148,51 +130,31 @@ const NewChess = () => {
     const dragStart = (e) => {
 
         draggedElement=e.target.parentNode.parentNode //the square
+        console.log(draggedElement, 'dragged')
         startPositionId = e.target.parentNode.parentNode.id
         startPositionRole = e.target.parentNode.parentNode.role
-        console.log(draggedElement, 'dragged')
+        setTimeout(() => {
+            draggedElement.firstChild.style.display = 'none';
+        }, 0);
 
     }
 
     function dragOver(e) {
         e.preventDefault()
-
     }
     function dragDrop(e) {
+        draggedElement.firstChild.style.display = 'block'
         targetRole = e.target.role || e.target.parentNode.parentNode.role
-
-
-
-
         const move = handleMoves(startPositionRole, targetRole)
 
         if (move) {
             console.log(game.fen())
             FENtoGrid(game.fen())
         }
-        // if (move && takenByOpponent) {
-        //     console.log('The move is valid:', move);
-        //     e.target.parentNode.parentNode.append(draggedElement.firstChild)
-        //     e.target.parentNode.parentNode.removeChild(e.target.parentNode)
-        //     changePlayer()
-        //
-        // }
-        // else if (move) {
-        //     e.target.append(draggedElement.firstChild)
-        //     console.log('this move is valid')
-        //     changePlayer()
-        // }
-        // else {
-        //         console.log('The move is invalid');
-        //
-        // }
     }
 
 
-    const changePlayer = () => {
 
-        changePlayerTurn(prevTurn => prevTurn === 'black' ? 'white' : 'black');
-    }
     //set up FEN
     const FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
 
