@@ -6,6 +6,8 @@ import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import ChessMain from "./components/ChessMain";
 import MainMenu from "./components/MainMenu";
 
+import { Chessboard } from 'react-chessboard';
+import NewChess from "./components/NewChess";
 function App() {
   return (
       <div className="App">
@@ -13,8 +15,8 @@ function App() {
           <BrowserRouter>
 
               <Routes>
-                  <Route path="/" element = {<MainMenu/>}/>
-                  <Route path="/:id" element={<ChessMain/>}/>
+                  {/*<Route path="/" element = {<MainMenu/>}/>*/}
+                  <Route path="/" element={<NewChess/>}/>
               </Routes>
 
           </BrowserRouter>
@@ -25,6 +27,8 @@ function App() {
           {/*</h1>*/}
 
           <p>testing</p>
+
+
       </div>
   );
 }

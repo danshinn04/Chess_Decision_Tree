@@ -1,7 +1,11 @@
 import {useEffect} from "react";
+import $ from 'jquery';
 
 
 const MainMenu = () => {
+
+
+
 
 
     const createGame = async () => {
@@ -11,7 +15,9 @@ const MainMenu = () => {
             })
 
             if (response.ok) {
-                console.log("ok test");
+                const data = await response.json();
+                console.log(data.Link.link)
+
             }
         }
         catch {
@@ -20,11 +26,11 @@ const MainMenu = () => {
         }
 
     }
-
-
     return <>
 
+
         <button onClick={createGame}>Create game</button>
+
     </>
 }
 
